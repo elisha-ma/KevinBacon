@@ -1,4 +1,4 @@
-import os, json
+import os, json, sys
 
 class Actor:
     '''
@@ -99,16 +99,19 @@ def print_pretty_path(path, input_actor):
 if __name__ == "__main__":
     read_json()
     
-    while(True):
-        input_name = raw_input("Please enter an actor's name: ")
-        if input_name not in actors:
-            print "Sorry! That actor is not in our data"
-            continue
-        
-        path = find_path(input_name)
-        
-        if path is None:
-            print "Sorry! Could not find a path to Kevin Bacon"
-            continue
-        
-        print_pretty_path(path, input_name)
+    try:
+        while(True):
+            input_name = raw_input("Please enter an actor's name: ")
+            if input_name not in actors:
+                print "Sorry! That actor is not in our data"
+                continue
+            
+            path = find_path(input_name)
+            
+            if path is None:
+                print "Sorry! Could not find a path to Kevin Bacon"
+                continue
+            
+            print_pretty_path(path, input_name)
+    except KeyboardInterrupt:
+        sys.exit(0)
