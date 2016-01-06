@@ -1,10 +1,18 @@
 import os, json
 
 class Actor:
+    '''
+    Object to store name of actor and a list of adjacent actors
+    name: string
+    adjacent_actors: dictionary with key = name of actor and value = film they were in together
+    '''
     def __init__(self, name):
         self.name = name
         self.adjacent_actors = {}
-        
+    
+    '''
+    Adds each new actor from the cast list to the adjacent_actors dictionary
+    '''    
     def update_adjacent_actors(self, cast_list, film):
         for cast in cast_list:
             cast_name = cast["name"]
@@ -12,20 +20,31 @@ class Actor:
                 self.adjacent_actors[cast_name] = film
 
 
+
+# Dictionary to store all actors read in from JSON files
+# Key = name of actor, value = Actor object
 actors = {}
 
+'''
+Input: Parsed JSON object containing film information
+Adds each cast member to the actors dictionary and updates the actors' adjacent actors
+'''
 def process_film(film_object):
     film_name = film_object["film"]["name"]
     cast_list = film_object["cast"]
     
     for cast in cast_list:
-        #actor_name = actor["name"].lower().replace(" ", "")
         cast_name = cast["name"]
+        
+        # Create new Actor object if first time seeing this cast member
         if cast_name not in actors:
             actors[cast_name] = Actor(cast_name)
             
         actors[cast_name].update_adjacent_actors(cast_list, film_name)
 
+'''
+Reads and processes every JSON file in the films folder
+''' 
 def read_json():
     path_to_json = 'films/'
     json_files = [json_file for json_file in os.listdir(path_to_json) if json_file.endswith('.json')]
@@ -34,9 +53,17 @@ def read_json():
             process_film(json.load(json_file))
             
 
+'''
+Input: Name of actor
+
+Performs BFS to find shortest path from Kevin Bacon to actor
+
+Returns: Path to actor (if found), None otherwise
+'''
 def find_path(input_name):
-    queue = [("Kevin Bacon", [])]
-    visited = {}
+    queue = [("Kevin Bacon", [])] # List of tuples: ("Actor Name", [Path so far])
+    visited = {} # Track which actors have already been visited
+    
     while queue:
         (current_actor, current_path) = queue.pop(0)
         if current_actor in visited:
@@ -46,13 +73,20 @@ def find_path(input_name):
         if current_actor == input_name:
             return current_path
         
+        # Add the current actor and the adjacent film to the next path
+        # Enqueue the adjacent actor plus the path
         for actor in actors[current_actor].adjacent_actors.keys():          
             if actor not in visited:
-                path = current_path + [(current_actor, actors[current_actor].adjacent_actors[actor])]
+                next_film = actors[current_actor].adjacent_actors[actor]
+                path = current_path + [(current_actor, next_film)]
                 queue.append((actor, path))
                 
     return None
 
+'''
+Prints the path by printing each Actor in the path followed by the Film they shared
+with the next Actor up to Kevin Bacon
+'''
 def print_pretty_path(path, input_actor):
     current_actor = input_actor
     
