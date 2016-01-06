@@ -113,5 +113,5 @@ if __name__ == "__main__":
                 continue
             
             print_pretty_path(path, input_name)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, EOFError):
         sys.exit(0)
