@@ -35,23 +35,33 @@ def read_json():
             
 
 def find_path(input_name):
-    queue = ["Kevin Bacon"]
+    queue = [("Kevin Bacon", [])]
     visited = {}
-    count = 0
     while queue:
-        count += 1
-        current_actor = queue.pop(0)
+        (current_actor, current_path) = queue.pop(0)
+        if current_actor in visited:
+            continue
+        
         visited[current_actor] = 1
-        if input_name == current_actor:
-            print "Found!"
-            return
+        if current_actor == input_name:
+            return current_path
         
-        for actor in actors[current_actor].adjacent_actors.keys():
+        for actor in actors[current_actor].adjacent_actors.keys():          
             if actor not in visited:
-                queue.append(actor)
+                path = current_path + [(current_actor, actors[current_actor].adjacent_actors[actor])]
+                queue.append((actor, path))
+                
+    return None
+
+def print_pretty_path(path, input_actor):
+    current_actor = input_actor
+    
+    for i in range(len(path)-1, -1, -1):
+        print current_actor + " -(" + path[i][1] + ")->",
+        current_actor = path[i][0]
         
-    print count
-            
+    print "Kevin Bacon"
+        
 if __name__ == "__main__":
     read_json()
     
@@ -61,4 +71,10 @@ if __name__ == "__main__":
             print "Sorry! That actor is not in our data"
             continue
         
-        find_path(input_name)
+        path = find_path(input_name)
+        
+        if path is None:
+            print "Sorry! Could not find a path to Kevin Bacon"
+            continue
+        
+        print_pretty_path(path, input_name)
