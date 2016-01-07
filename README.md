@@ -1,5 +1,5 @@
 # KevinBacon
-Homework assignment from Etsy to implement 7 degrees of Kevin Bacon using Python 2.7
+Homework assignment from Etsy to implement 6 degrees of Kevin Bacon using Python 2.7
 
 ## Usage:
   On command line run: python kevinbacon.py
