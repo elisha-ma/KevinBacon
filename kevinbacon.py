@@ -1,4 +1,4 @@
-import os, json, sys
+import os, json, sys, time
 
 class Actor:
     '''
@@ -106,12 +106,15 @@ if __name__ == "__main__":
                 print "Sorry! That actor is not in our data"
                 continue
             
+            start = time.time()
             path = find_path(input_name)
-            
+            end = time.time()
+            print "Elapsed time: %.3fs" % (end - start)
             if path is None:
                 print "Sorry! Could not find a path to Kevin Bacon"
                 continue
             
             print_pretty_path(path, input_name)
+            
     except (KeyboardInterrupt, EOFError):
         sys.exit(0)
