@@ -16,8 +16,9 @@ class Actor:
     def update_adjacent_actors(self, cast_list, film):
         for cast in cast_list:
             cast_name = cast["name"]
-            if cast_name != self.name and cast_name not in self.adjacent_actors:
-                self.adjacent_actors[cast_name] = film
+            cast_name_lower = cast_name.lower()
+            if cast_name != self.name and cast_name_lower not in self.adjacent_actors:
+                self.adjacent_actors[cast_name_lower] = film
 
 
 
@@ -35,12 +36,13 @@ def process_film(film_object):
     
     for cast in cast_list:
         cast_name = cast["name"]
+        cast_name_lower = cast_name.lower()
         
         # Create new Actor object if first time seeing this cast member
-        if cast_name not in actors:
-            actors[cast_name] = Actor(cast_name)
+        if cast_name_lower not in actors:
+            actors[cast_name_lower] = Actor(cast_name)
             
-        actors[cast_name].update_adjacent_actors(cast_list, film_name)
+        actors[cast_name_lower].update_adjacent_actors(cast_list, film_name)
 
 '''
 Reads and processes every JSON file in the films folder
@@ -61,7 +63,7 @@ Performs BFS to find shortest path from Kevin Bacon to actor
 Returns: Path to actor (if found), None otherwise
 '''
 def find_path(input_name):
-    queue = [("Kevin Bacon", [])] # List of tuples: ("Actor Name", [Path so far])
+    queue = [("kevin bacon", [])] # List of tuples: ("Actor Name", [Path so far])
     visited = {} # Track which actors have already been visited
     
     while queue:
@@ -88,11 +90,11 @@ Prints the path by printing each Actor in the path followed by the Film they sha
 with the next Actor up to Kevin Bacon
 '''
 def print_pretty_path(path, input_actor):
-    current_actor = input_actor
+    current_actor = actors[input_actor].name
     
     for i in range(len(path)-1, -1, -1):
         print current_actor + " -(" + path[i][1] + ")->",
-        current_actor = path[i][0]
+        current_actor = actors[path[i][0]].name
         
     print "Kevin Bacon"
         
@@ -102,19 +104,20 @@ if __name__ == "__main__":
     try:
         while(True):
             input_name = raw_input("Please enter an actor's name: ")
-            if input_name not in actors:
+            input_name_lower = input_name.lower()
+            if input_name_lower not in actors:
                 print "Sorry! That actor is not in our data"
                 continue
             
             start = time.time()
-            path = find_path(input_name)
+            path = find_path(input_name_lower)
             end = time.time()
             print "Elapsed time: %.3fs" % (end - start)
             if path is None:
                 print "Sorry! Could not find a path to Kevin Bacon"
                 continue
             
-            print_pretty_path(path, input_name)
+            print_pretty_path(path, input_name_lower)
             
     except (KeyboardInterrupt, EOFError):
         sys.exit(0)

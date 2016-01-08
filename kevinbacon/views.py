@@ -2,29 +2,27 @@ import requests, os, json, sys, time
 from django.shortcuts import render
 from django.http import HttpResponse
 
-from .models import Greeting
-
 
 # Create your views here.
 def index(request):
-    print "HERE"
     return render(request, 'index.html')
 
 def input(request):
     actors = read_json()
     input_name = request.POST.get('actorname')
     
-    if input_name not in actors:
+    input_name_lower = input_name.lower()
+    if input_name_lower not in actors:
         return render(request, "index.html", {"message" : "Sorry! That actor is not in our data"})
         
     start = time.time()
-    path = find_path(input_name, actors)
+    path = find_path(input_name_lower, actors)
     end = time.time()
     elapsed = "%.3fs" % (end - start)
     if path is None:
         return render(request, "index.html", {"message" : "Sorry! Could not find a path to Kevin Bacon"})
                 
-    path_string = print_pretty_path(path, input_name)
+    path_string = print_pretty_path(path, input_name_lower, actors)
     
     context = {"path" : path_string, "time" : elapsed}
     return render(request, 'input.html', context)
@@ -37,7 +35,7 @@ Performs BFS to find shortest path from Kevin Bacon to actor
 Returns: Path to actor (if found), None otherwise
 '''
 def find_path(input_name, actors):
-    queue = [("Kevin Bacon", [])] # List of tuples: ("Actor Name", [Path so far])
+    queue = [("kevin bacon", [])] # List of tuples: ("Actor Name", [Path so far])
     visited = {} # Track which actors have already been visited
     
     while queue:
@@ -62,15 +60,15 @@ def find_path(input_name, actors):
 Prints the path by printing each Actor in the path followed by the Film they shared
 with the next Actor up to Kevin Bacon
 '''
-def print_pretty_path(path, input_actor):
-    current_actor = input_actor
+def print_pretty_path(path, input_actor, actors):
+    current_actor = actors[input_actor].name
     
     path_list = []
     
     for i in range(len(path)-1, -1, -1):
         path_list.append(current_actor)
         path_list.append( " -(" + str(path[i][1]) + ")->")
-        current_actor = path[i][0]
+        current_actor = actors[path[i][0]].name
         
     path_list.append("Kevin Bacon")
     
@@ -92,8 +90,9 @@ class Actor:
     def update_adjacent_actors(self, cast_list, film):
         for cast in cast_list:
             cast_name = cast["name"]
-            if cast_name != self.name and cast_name not in self.adjacent_actors:
-                self.adjacent_actors[cast_name] = film
+            cast_name_lower = cast_name.lower()
+            if cast_name != self.name and cast_name_lower not in self.adjacent_actors:
+                self.adjacent_actors[cast_name_lower] = film
 
 
 
@@ -123,9 +122,10 @@ def process_film(film_object, actors):
     
     for cast in cast_list:
         cast_name = cast["name"]
+        cast_name_lower = cast_name.lower()
         
         # Create new Actor object if first time seeing this cast member
-        if cast_name not in actors:
-            actors[cast_name] = Actor(cast_name)
+        if cast_name_lower not in actors:
+            actors[cast_name_lower] = Actor(cast_name)
             
-        actors[cast_name].update_adjacent_actors(cast_list, film_name)
+        actors[cast_name_lower].update_adjacent_actors(cast_list, film_name)
