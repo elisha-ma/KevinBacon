@@ -2,7 +2,15 @@
 <html>
 <head>
 <title>Degrees of Kevin Bacon</title>
+{% load staticfiles %}
 <style type="text/css">
+  html {
+    background: url({% static 'bacon.png'%});
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+  }
   body {
     font-family: sans-serif;
     text-align: center;
@@ -15,11 +23,14 @@
     margin: 5px;
   }
   
-  #inputbutton {
+  input[type=submit] {
+    padding: 5px 15px;
     border-radius: 5px;
     width: 100px;
-    background-color: white;
-    border-image: none;
+    border: 0 none;
+    -webkit-border-radius: 5px;
+    background: #ccc;
+    cursor: pointer;
   }
 </style>
 </head>
@@ -38,7 +49,7 @@
 {% csrf_token %}
 	  Please enter the name of an actress/actor<br>
 	  <input id="inputfield" type="text" name="actorname" placeholder="Kevin Bacon"><br>
-	  <input id="inputbutton" type="submit" value="Go">
+	  <input type="submit" value="Go">
   </form>
 </div>
 {{ message }}
